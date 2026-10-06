@@ -1,0 +1,16 @@
+# Caddyfile — local dev configuration
+# For production: replace ":80" block with domain (e.g., "eolgae.example.com {")
+# Caddy will then auto-provision TLS via Let's Encrypt.
+
+{
+    auto_https off
+}
+
+:80 {
+    handle /api/* {
+        reverse_proxy api:8000
+    }
+    handle {
+        reverse_proxy web:3000
+    }
+}

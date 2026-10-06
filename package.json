@@ -1,0 +1,13 @@
+{
+  "name": "eolgae",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Eolgae — GitOps for AWS Infrastructure",
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "docker compose up",
+    "down": "docker compose down",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  }
+}

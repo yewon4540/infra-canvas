@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cross-account role for infrastructure planning.
+
+Parameters:
+  ExternalId:
+    Type: String
+    NoEcho: true
+    MinLength: 16
+    MaxLength: 128
+    Description: >-
+      External ID generated during account onboarding.
+
+  SourceAccountId:
+    Type: String
+    AllowedPattern: '^[0-9]{12}$'
+    Description: >-
+      AWS account ID where the source IAM user exists.
+
+  SourcePrincipalName:
+    Type: String
+    Default: IaC_user
+    AllowedPattern: '^[A-Za-z0-9+=,.@_-]+$'
+    Description: >-
+      IAM user name used as the source credential.
+
+  RoleName:
+    Type: String
+    Default: IaC-role
+    AllowedPattern: '^[A-Za-z0-9+=,.@_-]+$'
+    Description: IAM role name to create in this target AWS account.
+
+  EnableApplyPermissions:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: >-
+      Set true only when this account is ready to allow Eolgae Apply operations.
+
+Conditions:
+  ApplyPermissionsEnabled: !Equals [!Ref EnableApplyPermissions, 'true']
+
+Resources:
+  IaCPlanRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: >-
+        Role used for OpenTofu plan and AWS connection verification.
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${SourceAccountId}:user/${SourcePrincipalName}'
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref ExternalId
+      Policies:
+        - PolicyName: IaCPlanReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:Describe*
+                  - elasticloadbalancing:Describe*
+                  - autoscaling:Describe*
+                  - rds:Describe*
+                  - route53:Get*
+                  - route53:List*
+                  - s3:Get*
+                  - s3:List*
+                  - iam:Get*
+                  - iam:List*
+                  - cloudwatch:Describe*
+                  - cloudwatch:Get*
+                  - cloudwatch:List*
+                  - logs:Describe*
+                Resource: '*'
+        - !If
+          - ApplyPermissionsEnabled
+          - PolicyName: IaCApplyWrite
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:CreateBucket
+                    - s3:GetBucket*
+                    - s3:ListBucket
+                    - s3:PutBucketVersioning
+                    - s3:PutEncryptionConfiguration
+                    - s3:GetObject
+                    - s3:PutObject
+                    - s3:DeleteObject
+                  Resource:
+                    - !Sub 'arn:aws:s3:::eolgae-state-${AWS::AccountId}-${AWS::Region}'
+                    - !Sub 'arn:aws:s3:::eolgae-state-${AWS::AccountId}-${AWS::Region}/*'
+                - Effect: Allow
+                  Action:
+                    - dynamodb:CreateTable
+                    - dynamodb:DescribeTable
+                    - dynamodb:GetItem
+                    - dynamodb:PutItem
+                    - dynamodb:DeleteItem
+                  Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/eolgae-tofu-locks'
+                - Effect: Allow
+                  Action:
+                    - ec2:*
+                    - elasticloadbalancing:*
+                    - autoscaling:*
+                    - rds:*
+                    - route53:*
+                    - s3:*
+                    - iam:PassRole
+                    - iam:Get*
+                    - iam:List*
+                  Resource: '*'
+          - !Ref AWS::NoValue
+
+      Tags:
+        - Key: ManagedBy
+          Value: IaC
+        - Key: Purpose
+          Value: cross-account-plan
+
+Outputs:
+  RoleArn:
+    Description: Paste this ARN into the Role ARN field.
+    Value: !GetAtt IaCPlanRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+
+  SourcePrincipalArn:
+    Description: IAM principal allowed to assume this role.
+    Value: !Sub 'arn:aws:iam::${SourceAccountId}:user/${SourcePrincipalName}'
+
+  ExternalIdHint:
+    Description: ExternalId is NoEcho; it must match the onboarding value.
+    Value: 'Use the External ID generated during onboarding.'

@@ -1,0 +1,57 @@
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.kube/
+*kubeconfig*
+credentials.json
+
+# Runtime data and infrastructure artifacts
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform/
+.tofu/
+crash.log
+artifacts/
+backups/
+*.dump
+*.sqlite
+*.sqlite3
+*.log
+tf_file/
+
+# Dependencies and generated files
+node_modules/
+.next/
+dist/
+out/
+.pnpm-store/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local editor and working files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+.tmp/
+.claude/
+.codex/
+* 2.*
+* 3.*
+* 4.*
+* 5.*

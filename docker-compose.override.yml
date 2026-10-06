@@ -1,0 +1,41 @@
+# Dev overrides — `docker compose up` 실행 시 자동 적용됨.
+# Prod 빌드 (override 없이): `docker compose -f docker-compose.yml up`
+#
+# 효과:
+# - apps/api / apps/web 소스를 컨테이너에 bind mount → 코드 수정 즉시 반영
+# - FE: pnpm dev (Turbopack + HMR)
+# - BE: uvicorn --reload (파일 변경 시 자동 재시작)
+# - worker: 코드 변경 시 `docker compose restart worker` 필요 (--watch 미사용)
+# - node_modules / .next 는 named volume → 이미지의 install 결과 유지
+
+services:
+  api:
+    command: sh -c "alembic upgrade head && uvicorn eolgae.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./apps/api:/app
+      - ./infrastructure:/app/infrastructure:ro
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  worker:
+    volumes:
+      - ./apps/api:/app
+      - ./infrastructure:/app/infrastructure:ro
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  web:
+    build:
+      target: dev
+    command: pnpm dev
+    volumes:
+      - ./apps/web:/app
+      - web_node_modules:/app/node_modules
+      - web_next:/app/.next
+    environment:
+      WATCHPACK_POLLING: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+volumes:
+  web_node_modules:
+  web_next:
