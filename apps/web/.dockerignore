@@ -16,3 +16,17 @@ pnpm-debug.log*
 *.pem
 *.key
 .git
+*.p12
+*.pfx
+.aws
+.kube
+*kubeconfig*
+credentials.json
+*.dump
+*.sqlite
+*.sqlite3
+*.tfstate*
+*.tfplan
+tfplan
+artifacts
+backups
