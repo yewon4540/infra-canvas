@@ -1,4 +1,4 @@
-# Eolgae
+# Infra Canvas — Eolgae
 
 **인프라 설계 의도를 검토 가능한 실행 계획으로 연결하는 작업 공간.**
 
@@ -105,6 +105,8 @@ pnpm --dir apps/web dev
 ```
 
 웹은 `http://localhost:3000`, API 문서는 `http://localhost:8000/docs`에서 확인합니다. 회원가입 후 Canvas를 생성할 수 있습니다. AI 피드백은 LLM 설정이 필요하고, AWS 연결·Plan·Apply는 별도의 계정 및 권한 설정이 필요합니다.
+
+전체 컨테이너를 Caddy로 실행하거나 주석 처리된 Nginx 구성으로 전환하려면 [Caddy / Nginx 실행 가이드](docs/REVERSE-PROXY.md)를 참고합니다.
 
 [개발·검증 가이드](docs/DEVELOPMENT.md) · [AWS 연결 가이드](docs/AWS-CONNECTION.md) · [자격증명과 실행 경계](SECURITY.md)
 
