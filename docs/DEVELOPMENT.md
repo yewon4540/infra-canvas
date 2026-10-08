@@ -39,7 +39,7 @@ pnpm --dir apps/web dev
 
 기존 로컬 서비스가 5432, 6379, 8000, 3000 포트를 사용한다면 Compose 포트와 웹 API 주소를 함께 조정합니다. `docker compose down`은 컨테이너를 정지·제거하며, `-v`를 추가하면 저장된 개발 데이터도 삭제됩니다.
 
-이 가이드는 웹을 호스트의 pnpm 개발 서버로 실행합니다. Caddy/TLS, OAuth, Kubernetes 실클러스터 연결, 프로덕션 운영 설정은 이 로컬 확인 범위에 포함하지 않습니다.
+이 가이드는 웹을 호스트의 pnpm 개발 서버로 실행합니다. 전체 컨테이너의 Caddy/Nginx 선택과 전환은 [프록시 실행 가이드](REVERSE-PROXY.md)를 참고합니다. TLS, OAuth, Kubernetes 실클러스터 연결, 프로덕션 운영 검증은 이 로컬 확인 범위에 포함하지 않습니다.
 
 ## 테스트
 

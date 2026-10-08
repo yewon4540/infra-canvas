@@ -1,39 +1,36 @@
-# Multi-stage: builder 가 Next.js standalone build, runner 가 프로덕션 실행
-
-# ============ Base stage ============
+# Build from the repository root so pnpm uses the committed workspace lockfile.
 FROM node:24-alpine AS base
-WORKDIR /app
-
+WORKDIR /workspace
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 
-COPY package.json ./
-RUN pnpm install
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/package.json
+RUN pnpm install --frozen-lockfile --filter @eolgae/web
+COPY apps/web ./apps/web
+WORKDIR /workspace/apps/web
 
-COPY . .
-
-# ============ Dev stage ============
 FROM base AS dev
 
-# ============ Build stage ============
 FROM base AS builder
+# NEXT_PUBLIC_* is embedded in the browser bundle at build time.
+ARG NEXT_PUBLIC_API_URL=http://localhost/api
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN pnpm build
 
-# ============ Runtime stage ============
 FROM node:24-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-
-# Non-root user (security)
+ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# outputFileTracingRoot is the workspace root; preserve its standalone layout.
+COPY --from=builder --chown=nextjs:nodejs /workspace/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /workspace/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /workspace/apps/web/public ./apps/web/public
 
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]
