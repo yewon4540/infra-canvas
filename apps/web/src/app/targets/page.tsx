@@ -17,6 +17,7 @@ import {
   type TargetVerifyResult,
 } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ResourcesConnectionHint } from "@/components/resources/ResourcesConnectionHint";
 import { UserMenu } from "@/components/UserMenu";
 
 const KIND_LABELS: Record<TargetKind, string> = {
@@ -306,6 +307,7 @@ export default function TargetsPage() {
                   Eolgae secret backend에 저장한 뒤 위 Secret Reference로 연결합니다.
                 </p>
               </div>
+              <ResourcesConnectionHint />
               <button
                 type="button"
                 onClick={handleLoadManifest}

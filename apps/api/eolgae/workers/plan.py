@@ -9,6 +9,7 @@ from uuid import UUID
 import dramatiq
 
 from eolgae.db import SessionLocal
+from eolgae.execution.policy import require_direct_execution
 from eolgae.models.canvas import Canvas
 from eolgae.models.deployment import AuditLog, CanvasVersion, Deployment
 from eolgae.pipelines.graph_model import NODE_TF_RESOURCE, normalize_name
@@ -130,6 +131,8 @@ def run_plan(deployment_id: str) -> None:
                     deployment.status,
                 )
                 return
+
+            require_direct_execution(db.get(Canvas, deployment.canvas_id))
 
             version = db.get(CanvasVersion, deployment.canvas_version_id)
             if version is None:
@@ -253,6 +256,8 @@ def run_apply(deployment_id: str) -> None:
                     deployment.status,
                 )
                 return
+            require_direct_execution(db.get(Canvas, deployment.canvas_id))
+
             if not deployment.source_plan_deployment_id:
                 raise RuntimeError("Apply source Plan이 없음")
 
@@ -377,6 +382,8 @@ def run_destroy(deployment_id: str) -> None:
                     deployment.status,
                 )
                 return
+            require_direct_execution(db.get(Canvas, deployment.canvas_id))
+
             if not deployment.source_plan_deployment_id:
                 raise RuntimeError("Destroy source Plan이 없음")
 

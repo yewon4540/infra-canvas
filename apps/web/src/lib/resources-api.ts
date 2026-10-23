@@ -1,0 +1,10 @@
+import { request } from "@/lib/api";
+export type ObservedResource = {uid:string;kind:string;name:string;namespace:string;status:string;
+  summary:Record<string,string>;observed_at:string;management:string};
+export type ResourceRelation = {source_uid:string;target_uid:string;evidence:string};
+export type KindOutcome = {kind:string;status:"success"|"incomplete"|"error";complete:boolean;count:number;code?:string;message:string};
+export type Observation = {target_id:string;namespace:string;observed_at:string;status:"success"|"partial"|"error";
+  relations_complete:boolean;complete:boolean;items:ObservedResource[];relations:ResourceRelation[];outcomes:KindOutcome[]};
+export type ResourceScope = {namespaces:string[];default_namespace:string};
+export const getResourceScope = (id:string) => request<ResourceScope>(`/targets/${id}/resource-scope`);
+export const getResources = (id:string,namespace:string) => request<Observation>(`/targets/${id}/resources?namespace=${encodeURIComponent(namespace)}`);

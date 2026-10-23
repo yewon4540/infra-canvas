@@ -45,7 +45,6 @@ from eolgae.pipelines.feedback import (
     parse_feedback,
     stream_feedback_raw,
 )
-from eolgae.pipelines.apply import generate_plan, serialize_plan_result
 from eolgae.pipelines.kubernetes_generator import (
     generate_kubernetes_yaml,
     validate_kubernetes_canvas,
@@ -1283,22 +1282,12 @@ def plan_canvas(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
-    """캔버스 → .tf → tofu init/plan 동기 실행 (1차 PoC).
-
-    한계 ([[018]] 진입 단계):
-    - Cross-account AssumeRole 미적용 — 호스트 default credentials 사용
-    - State backend local — 다회 호출 state 누적 안 됨
-    - 동기 호출 — 큰 캔버스는 timeout 가능
-    - apply 미실행 (plan 까지만)
-    """
-    canvas = _get_canvas_for_user(db, canvas_id, user)
-
-    canvas_dict = {
-        "graph": canvas.graph,
-        "aws_account": canvas.aws_account,
-    }
-    result = generate_plan(canvas_dict)
-    return serialize_plan_result(result)
+    """Legacy host-credential execution is retired; use the async endpoint."""
+    _get_canvas_for_user(db, canvas_id, user)
+    raise HTTPException(
+        status_code=410,
+        detail="동기 Plan은 종료되었습니다. /deployments/plan 비동기 경로를 사용하세요.",
+    )
 
 
 @router.post("/{canvas_id}/feedback", response_model=FeedbackResponse)

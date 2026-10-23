@@ -36,6 +36,12 @@ export default function SettingsPage() {
 
       <SettingsSection title="Active">
         <SettingsLink
+          title="실행 및 Terrakube 연동"
+          description="이 설치의 실행 기능과 외부 Workspace·실행 이력을 확인합니다."
+          href="/settings/integrations"
+          meta="Runtime · Terrakube"
+        />
+        <SettingsLink
           title="AWS Connections"
           description="여러 Project Group과 Canvas에서 재사용할 AWS 계정 Role 연결을 관리합니다."
           href="/aws-connections"
@@ -91,7 +97,6 @@ export default function SettingsPage() {
 
       <SettingsSection title="Coming Soon">
         {[
-          "Integrations",
           "Users / Roles",
           "Capabilities",
           "Feature Flags",

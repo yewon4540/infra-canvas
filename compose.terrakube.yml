@@ -1,0 +1,19 @@
+# The API token remains a mounted file; it is never passed to the browser.
+services:
+  api:
+    environment:
+      TERRAKUBE_ENABLED: 'true'
+      TERRAKUBE_PLAN_ENABLED: ${TERRAKUBE_PLAN_ENABLED:-false}
+      TERRAKUBE_PLAN_TEMPLATE_ID: ${TERRAKUBE_PLAN_TEMPLATE_ID:-}
+      TERRAKUBE_PLAN_USER_IDS: ${TERRAKUBE_PLAN_USER_IDS:-}
+      TERRAKUBE_API_URL: ${TERRAKUBE_API_URL:?required}
+      TERRAKUBE_UI_URL: ${TERRAKUBE_UI_URL:?required}
+      TERRAKUBE_ORGANIZATION_ID: ${TERRAKUBE_ORGANIZATION_ID:?required}
+      TERRAKUBE_WORKSPACE_IDS: ${TERRAKUBE_WORKSPACE_IDS:?required}
+      TERRAKUBE_USER_IDS: ${TERRAKUBE_USER_IDS:?required}
+      TERRAKUBE_TOKEN_FILE: /run/secrets/terrakube_token
+    secrets:
+      - terrakube_token
+secrets:
+  terrakube_token:
+    file: ${TERRAKUBE_TOKEN_FILE:?required}

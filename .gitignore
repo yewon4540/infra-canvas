@@ -55,3 +55,7 @@ venv/
 * 3.*
 * 4.*
 * 5.*
+
+# Local documentation exports
+output/
+tmp/

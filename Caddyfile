@@ -1,14 +1,15 @@
-# Local HTTP proxy. For TLS/domain setup, see docs/REVERSE-PROXY.md.
+# Caddyfile — local dev configuration
+# For production: replace ":80" block with domain (e.g., "eolgae.example.com {")
+# Caddy will then auto-provision TLS via Let's Encrypt.
+
 {
     auto_https off
 }
 
 :80 {
-    redir /api /api/ 308
     handle_path /api/* {
         reverse_proxy api:8000 {
-            # The API sets Path=/auth/refresh; browsers call /api/auth/refresh.
-            header_down Set-Cookie "(?i)(;[ ]*Path=)/auth/refresh" "${1}/api/auth/refresh"
+            header_down Set-Cookie "Path=/auth" "Path=/api/auth"
         }
     }
     handle {

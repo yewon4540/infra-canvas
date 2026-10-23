@@ -1,3 +1,4 @@
+import { useExecutionBinding } from "@/hooks/useExecutionBinding";
 import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 import { type Edge, type Node } from "@xyflow/react";
 
@@ -204,7 +205,8 @@ export function CanvasSidePanels({
       planDeployment ||
       deploymentHistory.length > 0,
   );
-  const canApply =
+  const execution = useExecutionBinding(canvasId);
+  const canApply = execution.allowed &&
     planDeployment?.mode !== "destroy" &&
     Boolean(tofuPlan?.ok) &&
     (planDeployment?.status === "success" ||
@@ -215,8 +217,8 @@ export function CanvasSidePanels({
     canvasState === "applied" || canvasState === "running" || canvasState === "deploy";
   const isDestroyPlan = planDeployment?.mode === "destroy";
   const canRunDestroyPlan =
-    hasAppliedResources && !isDestroyPlan && Boolean(onDestroyPlan);
-  const canApplyDestroy =
+    execution.allowed && hasAppliedResources && !isDestroyPlan && Boolean(onDestroyPlan);
+  const canApplyDestroy = execution.allowed &&
     isDestroyPlan &&
     Boolean(tofuPlan?.ok) &&
     (planDeployment?.status === "success" ||
@@ -465,14 +467,14 @@ export function CanvasSidePanels({
                         </button>
                         <button
                           onClick={onRunPlan}
-                          disabled={planning || actionDisabled}
+                          disabled={!execution.allowed || planning || actionDisabled}
                           className={
-                            planning || actionDisabled
+                            !execution.allowed || planning || actionDisabled
                               ? "cursor-not-allowed whitespace-nowrap rounded-md bg-[var(--color-surface)] px-2.5 py-1.5 text-xs text-[var(--color-text-subtle)]"
                               : "whitespace-nowrap rounded-md bg-[var(--color-accent)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-accent-fg)] hover:bg-[var(--color-accent-hover)]"
                           }
                         >
-                          {planning ? "Planning" : "Plan"}
+                          {planning ? "Planning" : execution.allowed ? "Plan" : execution.message}
                         </button>
                         <button
                           onClick={isDestroyPlan ? onDestroyApply : onApplyPlan}

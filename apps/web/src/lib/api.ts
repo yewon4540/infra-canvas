@@ -1,5 +1,5 @@
 // Eolgae API client.
-// 백엔드 schema 와 동일 (snake_case). 자세한 schema: docs/ARCHITECTURE.md
+// 백엔드 schema 와 동일 (snake_case). 자세한 schema: docs/specs/CANVAS-SCHEMA.md
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -232,7 +232,7 @@ async function _rawRequest(
   });
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res = await _rawRequest(path, init);
 
   // 401 → refresh 1회 시도 → retry
@@ -803,9 +803,8 @@ export function buildOAuthStartUrl(
   provider: OAuthProvider,
   redirect: string = "/",
 ): string {
-  const url = new URL(`${API_URL}/auth/oauth/${provider}/start`);
-  url.searchParams.set("redirect", redirect);
-  return url.toString();
+  const query = new URLSearchParams({ redirect });
+  return `${API_URL}/auth/oauth/${provider}/start?${query.toString()}`;
 }
 
 // ===== Canvas Groups =====

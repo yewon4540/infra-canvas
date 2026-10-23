@@ -1,0 +1,8 @@
+# Supply DATABASE_URL. Start after provisioning/migrating an external PostgreSQL.
+services:
+  postgres:
+    profiles: [unused-embedded-db]
+  api:
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?required}
+    depends_on: !reset {}

@@ -5,8 +5,8 @@
   "description": "Eolgae — GitOps for AWS Infrastructure",
   "packageManager": "pnpm@9.12.0",
   "scripts": {
-    "dev": "docker compose up",
-    "down": "docker compose down",
+    "dev": "docker compose -f docker-compose.yml -f docker-compose.override.yml up",
+    "down": "docker compose -f docker-compose.yml -f docker-compose.override.yml down",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint"
   }

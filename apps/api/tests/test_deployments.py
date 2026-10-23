@@ -13,6 +13,7 @@ from fastapi import HTTPException
 
 os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://test:test@localhost/test")
 os.environ.setdefault("JWT_SECRET", "test-secret")
+os.environ.setdefault("DIRECT_EXECUTION_ENABLED", "true")
 
 db_module = types.ModuleType("eolgae.db")
 db_module.get_db = Mock()
@@ -48,6 +49,12 @@ from eolgae.workers import plan as plan_worker
 
 
 class ApplyDeploymentRouteTests(unittest.TestCase):
+    def setUp(self):
+        from eolgae.config import settings
+        patcher = patch.object(settings, "direct_execution_enabled", True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_deployment_summary_counts_user_deployments(self) -> None:
         db = Mock()
         db.scalars.return_value.all.return_value = [

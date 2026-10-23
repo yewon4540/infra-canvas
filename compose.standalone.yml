@@ -1,0 +1,54 @@
+x-direct-environment: &direct-environment
+  DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-eolgae}:${POSTGRES_PASSWORD:-}@postgres:5432/${POSTGRES_DB:-eolgae}}
+  JWT_SECRET: ${JWT_SECRET:?required}
+  DIRECT_EXECUTION_ENABLED: 'true'
+  VALKEY_URL: redis://valkey:6379/0
+  ARTIFACT_STORE_BACKEND: ${ARTIFACT_STORE_BACKEND:-local}
+  ARTIFACT_LOCAL_ROOT: ${ARTIFACT_LOCAL_ROOT:-/var/lib/eolgae/artifacts}
+  ARTIFACT_RETENTION_POLICY: ${ARTIFACT_RETENTION_POLICY:-keep}
+  ARTIFACT_S3_BUCKET: ${ARTIFACT_S3_BUCKET:-}
+  ARTIFACT_S3_PREFIX: ${ARTIFACT_S3_PREFIX:-artifacts}
+  ARTIFACT_S3_REGION: ${ARTIFACT_S3_REGION:-ap-northeast-2}
+  ARTIFACT_S3_ENDPOINT_URL: ${ARTIFACT_S3_ENDPOINT_URL:-}
+  ARTIFACT_S3_ACCESS_KEY_ID: ${ARTIFACT_S3_ACCESS_KEY_ID:-}
+  ARTIFACT_S3_SECRET_ACCESS_KEY: ${ARTIFACT_S3_SECRET_ACCESS_KEY:-}
+  ARTIFACT_S3_SESSION_TOKEN: ${ARTIFACT_S3_SESSION_TOKEN:-}
+  ARTIFACT_S3_FORCE_PATH_STYLE: ${ARTIFACT_S3_FORCE_PATH_STYLE:-false}
+services:
+  api:
+    environment:
+      <<: *direct-environment
+    depends_on:
+      valkey:
+        condition: service_healthy
+  valkey:
+    image: valkey/valkey:8-alpine
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: [CMD, valkey-cli, ping]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: executor
+    environment:
+      <<: *direct-environment
+      AWS_REGION: ${AWS_REGION:-ap-northeast-2}
+      AWS_DEFAULT_REGION: ${AWS_REGION:-ap-northeast-2}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    volumes:
+      - artifact_data:/var/lib/eolgae/artifacts
+    depends_on:
+      api:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+volumes:
+  valkey_data:
+  artifact_data:

@@ -8,6 +8,7 @@ from eolgae.models.environment import Environment
 from eolgae.models.group_aws_connection import GroupAwsConnection
 from eolgae.models.oauth_account import OAuthAccount
 from eolgae.models.refresh_token import RefreshToken
+from eolgae.models.remote_plan import RemotePlan
 from eolgae.models.target import Target
 from eolgae.models.user import User
 
@@ -23,6 +24,7 @@ __all__ = [
     "GroupAwsConnection",
     "OAuthAccount",
     "RefreshToken",
+    "RemotePlan",
     "Target",
     "User",
 ]

@@ -8,7 +8,10 @@ from eolgae.routers import (
     canvas,
     deployments,
     environments,
+    execution,
     groups,
+    remote_plans,
+    resources,
     settings,
     targets,
 )
@@ -16,7 +19,7 @@ from eolgae.routers import (
 app = FastAPI(
     title="Eolgae API",
     version="0.0.1",
-    description="GitOps for AWS Infrastructure — Canvas + Apply backend",
+    description="Resource operations with optional direct execution and Terrakube",
 )
 
 # CORS — local dev: Next.js dev / Caddy 둘 다 허용
@@ -32,6 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(execution.router)
+app.include_router(remote_plans.router)
 app.include_router(auth.router)
 app.include_router(aws_connections.router)
 app.include_router(canvas.router)
@@ -41,6 +46,7 @@ app.include_router(groups.router)
 app.include_router(groups.ownership_router)
 app.include_router(settings.router)
 app.include_router(targets.router)
+app.include_router(resources.router)
 
 
 @app.get("/")

@@ -1,0 +1,10 @@
+# Optional read-only Kubernetes access; adds no worker or broker.
+services:
+  api:
+    environment:
+      KUBERNETES_READ_PROFILES_FILE: /run/eolgae/kubernetes/profiles.json
+    volumes:
+      - type: bind
+        source: ${KUBERNETES_CONFIG_DIR:?required}
+        target: /run/eolgae/kubernetes
+        read_only: true

@@ -100,7 +100,7 @@ def verify_kubernetes_target_metadata(target: Target) -> TargetVerification:
             name="live_cluster",
             ok=live_cluster_ok,
             message=(
-                "Live Kubernetes API verification is pending Kubernetes client integration"
+                "Live Kubernetes API verification requires an operator read profile"
                 if secret_backend_ok
                 else "Live Kubernetes API verification requires resolved credentials"
             ),
@@ -115,9 +115,9 @@ def verify_kubernetes_target_metadata(target: Target) -> TargetVerification:
             status="pending",
             message=(
                 "Kubernetes target credentials are resolved; live cluster "
-                "verification is pending Kubernetes client integration"
+                "verification requires an operator read profile"
             ),
-            last_error="Live Kubernetes verification pending Kubernetes client integration",
+            last_error="Kubernetes read profile is not configured",
             checks=checks,
         )
     if metadata_ok and not live_cluster_ok:
@@ -140,3 +140,23 @@ def verify_kubernetes_target_metadata(target: Target) -> TargetVerification:
         last_error="Kubernetes target metadata is incomplete",
         checks=checks,
     )
+
+
+def verify_kubernetes_target(target: Target) -> TargetVerification:
+    from fastapi import HTTPException
+    from eolgae.config import settings
+    from eolgae.services.resource_observation import observe
+    if not settings.kubernetes_read_profiles_file:
+        return verify_kubernetes_target_metadata(target)
+    try:
+        result = observe(target)
+        checks = [TargetVerificationCheck(name=o["kind"], ok=o["complete"],
+                  message=o["message"] or "실제 API 조회 성공") for o in result["outcomes"]]
+        ok = result["complete"]
+        message = "Kubernetes 실제 조회 성공" if ok else "Kubernetes 조회 범위 또는 연결 오류를 확인하세요."
+        return TargetVerification(ok, "kubernetes_live_read", "ready" if ok else "error",
+                                  message, None if ok else message, checks)
+    except HTTPException as error:
+        message = str(error.detail)
+        return TargetVerification(False, "kubernetes_live_read", "error", message, message,
+                                  [TargetVerificationCheck(name="live_cluster", ok=False, message=message)])

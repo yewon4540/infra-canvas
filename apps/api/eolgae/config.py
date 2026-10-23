@@ -7,6 +7,22 @@ class Settings(BaseSettings):
     valkey_url: str = "redis://localhost:6379/0"
     jwt_secret: str
 
+    direct_execution_enabled: bool = False
+    terrakube_enabled: bool = False
+    terrakube_api_url: str = ""
+    terrakube_ui_url: str = ""
+    terrakube_token_file: str = ""
+    terrakube_organization_id: str = ""
+    # Comma separated IDs; empty lists deny access.
+    terrakube_workspace_ids: str = ""
+    terrakube_user_ids: str = ""
+    terrakube_plan_enabled: bool = False
+    terrakube_plan_template_id: str = ""
+    terrakube_plan_user_ids: str = ""
+
+    # Operator-owned Kubernetes read profiles; no user-supplied credential destinations.
+    kubernetes_read_profiles_file: str = ""
+
     # LLM provider — 우선순위: Anthropic > OpenAI / OpenAI-compatible
     anthropic_api_key: str = ""
     openai_api_key: str = ""

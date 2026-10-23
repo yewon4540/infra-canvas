@@ -35,10 +35,13 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      target: api
     container_name: eolgae-api
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-eolgae}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-eolgae}
       VALKEY_URL: redis://valkey:6379/0
+      DIRECT_EXECUTION_ENABLED: "true"
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       JWT_SECRET: ${JWT_SECRET:?required}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -76,11 +79,13 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      target: executor
     container_name: eolgae-worker
     command: dramatiq eolgae.workers
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-eolgae}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-eolgae}
       VALKEY_URL: redis://valkey:6379/0
+      DIRECT_EXECUTION_ENABLED: "true"
       JWT_SECRET: ${JWT_SECRET:?required}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}

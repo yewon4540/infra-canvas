@@ -5,11 +5,11 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 
-export type WorkspaceSection = "dashboard" | "canvas" | "settings";
+export type WorkspaceSection = "dashboard" | "canvas" | "settings" | "resources";
 
 type WorkspaceShellProps = {
   active: WorkspaceSection;
-  onSectionChange?: (section: WorkspaceSection) => void;
+  onSectionChange?: (section: "dashboard" | "canvas" | "settings") => void;
   children: ReactNode;
 };
 
@@ -57,6 +57,7 @@ export function WorkspaceShell({
                 onSectionChange ? () => onSectionChange("canvas") : undefined
               }
             />
+            <WorkspaceNavItem active={active === "resources"} href="/resources" label="Resources" />
             <WorkspaceNavItem
               active={active === "settings"}
               href="/settings"

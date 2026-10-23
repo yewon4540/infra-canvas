@@ -25,7 +25,7 @@ from eolgae.schemas.target import (
 from eolgae.services.kubernetes_onboarding import build_read_only_manifest
 from eolgae.services.target_verification import (
     verify_aws_target,
-    verify_kubernetes_target_metadata,
+    verify_kubernetes_target,
 )
 
 router = APIRouter(prefix="/targets", tags=["targets"])
@@ -231,7 +231,7 @@ def verify_target(
             connection = None
         verification = verify_aws_target(connection)
     elif target.kind == "kubernetes_cluster":
-        verification = verify_kubernetes_target_metadata(target)
+        verification = verify_kubernetes_target(target)
     else:
         raise _err(status.HTTP_400_BAD_REQUEST, "unsupported_target_kind", "unsupported target kind")
 

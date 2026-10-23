@@ -92,7 +92,7 @@ def test_verify_kubernetes_target_resolves_env_secret_ref(monkeypatch) -> None:
     assert result.mode == "kubernetes_secret_resolved"
     assert result.status == "pending"
     assert target.status == "pending"
-    assert target.last_error == "Live Kubernetes verification pending Kubernetes client integration"
+    assert target.last_error == "Kubernetes read profile is not configured"
     assert any(check.name == "secret_backend" and check.ok for check in result.checks)
     assert all("test-token" not in check.message for check in result.checks)
 
