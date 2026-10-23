@@ -6,7 +6,9 @@
 flowchart TD
     Web[Next.js / React Flow] --> API[FastAPI]
     API --> DB[(PostgreSQL)]
-    API --> Queue[Valkey / Dramatiq]
+    API --> Kube[Kubernetes GET / Resources]
+    API --> Remote[Terrakube Workspace / Plan]
+    API --> Queue[선택적 Valkey / Dramatiq]
     Queue --> Worker[Execution worker]
     Worker --> STS[AWS STS AssumeRole]
     STS --> Env[Subprocess environment]
@@ -71,4 +73,8 @@ LLM은 사용자 검토 기준과 설계 graph를 바탕으로 피드백을 생�
 
 ## Kubernetes 확장 경계
 
-Target은 endpoint와 secret reference를 저장하고, resolver가 token/CA를 실행 중에 해석합니다. 현재는 로컬 YAML 검증과 인증정보 준비 상태까지만 구현돼 있습니다. 실제 API client, inventory, cluster dry-run은 후속 adapter 영역입니다.
+Target에는 endpoint와 profile 참조를 저장합니다. 관리자 profile은 사용자·서버·namespace·token/CA 파일을 연결합니다. GET 전용 adapter가 제한된 6종 리소스를 조회하며 Resources 화면은 상태·관계·시각과 부분 실패를 표시합니다. raw 객체와 Secret은 저장하지 않습니다. 자동 수집·drift·cluster dry-run은 후속입니다.
+
+## 실행 책임 분리
+
+기본 API 이미지에는 OpenTofu가 없습니다. standalone worker만 직접 실행하며 Terrakube binding은 API와 worker에서 직접 실행을 차단합니다. 원격 Plan 요청은 commit SHA·Canvas 참조 버전·요청 ID·Run ID를 기록합니다. timeout은 unknown으로 남고 기존 Run을 확인합니다. 원격 State·승인·Apply/Destroy는 Terrakube가 소유합니다.

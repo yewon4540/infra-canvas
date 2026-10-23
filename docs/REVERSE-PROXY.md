@@ -1,5 +1,7 @@
 # Caddy / Nginx 실행 구성
 
+새 설치는 [배포 모드 가이드](DEPLOYMENT-MODES.md)를 우선 사용한다. 아래는 기존 직접 실행 개발 구성이다.
+
 두 파일 모두 독립적으로 실행할 수 있다. 기본 상태에서는 Caddy를 사용한다.
 
 | 파일 | 구성 |
@@ -9,7 +11,7 @@
 | `docker-compose.override.yml` | 개발용 bind mount, API reload, 웹 HMR |
 | `nginx/default.conf` | Nginx를 선택했을 때 사용하는 HTTP 프록시 설정 |
 
-웹 Docker 빌드 context는 저장소 루트이며, 커밋된 `pnpm-lock.yaml`로 의존성 버전을 고정한다. 개발 override는 `/workspace/apps/web`에 소스를 마운트하고 의존성은 별도 named volume에 유지한다.
+웹 Docker 빌드 context는 저장소 루트이며, 커밋된 `pnpm-lock.yaml`로 의존성 버전을 고정한다. 개발 override는 `/app/apps/web`에 소스를 마운트하고 의존성은 별도 named volume에 유지한다.
 
 두 Compose 파일의 공통 서비스·환경변수·볼륨은 동일하게 유지한다. 파일을 함께 병합하지 않고 하나를 선택한다. 같은 디렉터리에서 파일만 바꾸면 같은 Compose 프로젝트와 데이터 볼륨을 사용한다.
 

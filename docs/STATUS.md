@@ -10,12 +10,14 @@
 | 추적 | Canvas snapshot, artifact store, 단계별 이벤트, audit, 실행 이력 |
 | 상태 연결 기반 | Apply 후 state에서 리소스 binding 추출·저장 |
 | 설계 검토 | 검토 기준 입력, LLM 피드백, deterministic baseline rules |
-| Kubernetes 기반 | Target 등록, RBAC 안내, secret resolver, YAML 생성·로컬 검증 |
+| Kubernetes | 실제 API 조회 검증, 6종 Resources 목록·상세·관계, 부분 실패·관측 시각 |
+| Terrakube | Workspace/Run 조회, Canvas 연결, Git commit Plan 요청·상태·결과 |
+| 배포 모드 | core, standalone, Terrakube, observation, 외부 DB overlay |
 
 ## 아직 제공하지 않는 기능
 
-- Kubernetes live API 연결 검증, inventory refresh, cluster-side dry-run
-- 실제 클러스터 데이터 기반 리소스 탐색기, 로그 콘솔, Pod exec
+- Kubernetes 자동 inventory 수집, drift, cluster-side dry-run
+- 로그 콘솔, Pod exec, Kubernetes 쓰기 작업
 - AWS live discovery, 주기적 refresh·drift detection, import/adopt
 - CloudFormation Change Set 실행
 - 자동 복구·자동 Apply, 실시간 실행 출력 스트리밍
@@ -23,7 +25,7 @@
 ## 알려진 한계
 
 - `applied`는 마지막 Apply 성공을 뜻합니다. 실시간 리소스 정상 상태가 아닙니다.
-- Kubernetes Resource Tree는 Canvas graph 미리보기입니다.
+- Canvas의 Resource Tree와 별도로 Resources는 실제 클러스터 조회 결과를 표시합니다.
 - Kubernetes diagram에서 리소스 겹침과 panel 가림이 관찰됐습니다. 추가 시각화 개선은 보류하고 트리·상세 중심 탐색을 검토합니다.
 - Canvas 상세 page와 일부 router에 책임이 집중돼 있습니다. 새 동작을 추가할 때 hook/service/provider 경계로 분리해야 합니다.
 - 실제 AWS 실행의 초기 검증 범위는 S3 생성·삭제입니다. 모든 AWS 리소스 조합의 운영 적합성을 검증한 상태는 아닙니다.

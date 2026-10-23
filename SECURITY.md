@@ -29,3 +29,15 @@ git ls-files
 ```
 
 자동 탐지만으로 내부 주소·개인 경로·운영 기록을 모두 판별할 수는 없습니다. 설정 예제, 문서, fixture, commit metadata도 함께 검토합니다. 발견한 실제 credential은 공개 issue에 기재하지 않습니다.
+
+## Kubernetes observation and remote execution
+
+Kubernetes read profiles are operator-owned files. Each profile binds an exact HTTPS endpoint,
+Eolgae user IDs, namespace scope, and server-side token/CA file paths. Resource requests also
+check Target ownership. Redirects, environment proxies, insecure TLS, Secret payloads, raw YAML,
+container environment values, and arbitrary Kubernetes commands are not supported.
+
+Terrakube credentials are mounted server-side files. Workspace/read-user and Plan-user scopes
+are separate; Plan submission is disabled by default. A bound Canvas cannot fall back to direct
+execution. Unknown submission results are reconciled against the existing Run, not resubmitted.
+Remote approval, Apply/Destroy, State and locks remain owned by Terrakube.
