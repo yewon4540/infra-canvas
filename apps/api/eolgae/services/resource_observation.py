@@ -5,7 +5,7 @@ from eolgae.integrations.kubernetes.client import KINDS, Reader, ReadError
 from eolgae.integrations.kubernetes.normalize import resource, relations
 
 
-def observe(target, namespace=None):
+def observe(target, namespace=None, include_signals=False):
     access = access_for(target, namespace)
     observed_at = datetime.now(timezone.utc).isoformat()
     raw, items, outcomes = [], [], []
@@ -30,6 +30,11 @@ def observe(target, namespace=None):
     complete = all(o["complete"] for o in outcomes)
     any_success = any(o["status"] != "error" for o in outcomes)
     edges = relations(raw, items)
-    return {"relations_complete": len(edges) < 5000, "target_id": str(target.id), "namespace": access.namespace, "observed_at": observed_at,
+    signals, signal_outcome = [], {'status': 'not_requested', 'message': ''}
+    if include_signals:
+        from eolgae.integrations.kubernetes.signals import workload_signals, event_signals
+        events, signal_outcome = event_signals(access, items, observed_at)
+        signals = workload_signals(raw, observed_at) + events
+    return {"provider": "kubernetes", "signals": signals, "signal_outcome": signal_outcome, "relations_complete": len(edges) < 5000, "target_id": str(target.id), "namespace": access.namespace, "observed_at": observed_at,
             "status": "success" if complete else "partial" if any_success else "error",
             "complete": complete, "items": items, "relations": edges, "outcomes": outcomes}

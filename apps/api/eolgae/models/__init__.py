@@ -28,3 +28,5 @@ __all__ = [
     "Target",
     "User",
 ]
+
+from eolgae.models.resource_observation import ResourceObservation, ResourceExecutionLink

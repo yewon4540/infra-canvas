@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     # Operator-owned Kubernetes read profiles; no user-supplied credential destinations.
     kubernetes_read_profiles_file: str = ""
+    resource_ai_enabled: bool = False
 
     # LLM provider — 우선순위: Anthropic > OpenAI / OpenAI-compatible
     anthropic_api_key: str = ""

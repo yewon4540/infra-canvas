@@ -61,7 +61,7 @@ class Reader:
             raise ReadError("invalid_response", "Kubernetes 응답 형식 오류") from None
 
     def collect(self, kind):
-        base, plural = KINDS[kind]
+        base, plural = ("/api/v1", "events") if kind == "Event" else KINDS[kind]
         ns = self.access.namespace
         if kind == "Namespace" and ns != "*":
             item = self.get(f"{base}/namespaces/{ns}")

@@ -4,7 +4,21 @@ export type ObservedResource = {uid:string;kind:string;name:string;namespace:str
 export type ResourceRelation = {source_uid:string;target_uid:string;evidence:string};
 export type KindOutcome = {kind:string;status:"success"|"incomplete"|"error";complete:boolean;count:number;code?:string;message:string};
 export type Observation = {target_id:string;namespace:string;observed_at:string;status:"success"|"partial"|"error";
-  relations_complete:boolean;complete:boolean;items:ObservedResource[];relations:ResourceRelation[];outcomes:KindOutcome[]};
-export type ResourceScope = {namespaces:string[];default_namespace:string};
+  observation_id?:string;provider?:string;changes?:ResourceChange[];baseline_at?:string|null;last_success_at?:string|null;signals?:ResourceSignal[];signal_outcome?:{status:string;message:string};relations_complete:boolean;complete:boolean;items:ObservedResource[];relations:ResourceRelation[];outcomes:KindOutcome[]};
+export type ResourceScope = {namespaces:string[];default_namespace:string;provider?:string;label?:string};
 export const getResourceScope = (id:string) => request<ResourceScope>(`/targets/${id}/resource-scope`);
 export const getResources = (id:string,namespace:string) => request<Observation>(`/targets/${id}/resources?namespace=${encodeURIComponent(namespace)}`);
+
+export type ResourceChange = {uid:string;kind:string;name:string;type:string;fields:string[];before?:Record<string,unknown>;after?:Record<string,unknown>};
+export type ResourceSignal = {id:string;uid:string;type:string;reason:string;count:number;at:string;source:string};
+export type ObservationHistory = {id:string;observed_at:string;status:string;changes:ResourceChange[]};
+export type ResourceRun = {id:string;backend:string;operation:string;status:string;created_at:string;commit?:string|null;revision?:string;url?:string|null};
+export type ExecutionContext = {binding:null|{canvas_id:string;name:string;backend:string;workspace_id:string|null;evidence:string;linked_at:string};runs:ResourceRun[];error:string|null;has_more:boolean;candidates:{id:string;name:string;backend:string}[]};
+export type ResourceAnalysis = {mode:string;observed_at:string;ai_enabled:boolean;warnings:string[];evidence:{id:string;type:string;data:Record<string,unknown>}[];findings:{title:string;explanation:string;confidence:string;evidence_ids:string[];checks:string[]}[]};
+export type ResourceRequest = {observation_id:string;uid:string;namespace:string};
+export const collectObservation=(id:string,scope:string)=>request<Observation>(`/targets/${id}/observations?namespace=${encodeURIComponent(scope)}`,{method:'POST'});
+export const savedObservations=(id:string,scope:string)=>request<{latest:Observation|null;history:ObservationHistory[]}>(`/targets/${id}/observations?namespace=${encodeURIComponent(scope)}`);
+export const loadObservation=(id:string,scope:string,snapshot:string)=>request<Observation>(`/targets/${id}/observations/${snapshot}?namespace=${encodeURIComponent(scope)}`);
+export const resourceContext=(id:string,body:ResourceRequest,live=false)=>request<ExecutionContext>(`/targets/${id}/resource-context?${new URLSearchParams({...body,live_runs:String(live)})}`);
+export const linkResource=(id:string,body:ResourceRequest,canvas_id:string|null)=>request<{ok:boolean}>(`/targets/${id}/resource-context`,{method:'PUT',body:JSON.stringify({...body,canvas_id})});
+export const analyzeResource=(id:string,body:ResourceRequest,use_ai=false)=>request<ResourceAnalysis>(`/targets/${id}/resource-analysis`,{method:'POST',body:JSON.stringify({...body,use_ai})});

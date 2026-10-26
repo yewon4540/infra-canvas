@@ -1,9 +1,4 @@
-"""Target verification helpers.
-
-Kubernetes live checks intentionally stop before kube API access until the
-Kubernetes client/dry-run adapter is added. Secret reference resolution is still
-checked here so later inventory and dry-run code can share the same boundary.
-"""
+"""Target metadata checks and optional operator-profile live verification."""
 from __future__ import annotations
 
 from dataclasses import dataclass
