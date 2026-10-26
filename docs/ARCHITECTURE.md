@@ -78,3 +78,7 @@ Target에는 endpoint와 profile 참조를 저장합니다. 관리자 profile은
 ## 실행 책임 분리
 
 기본 API 이미지에는 OpenTofu가 없습니다. standalone worker만 직접 실행하며 Terrakube binding은 API와 worker에서 직접 실행을 차단합니다. 원격 Plan 요청은 commit SHA·Canvas 참조 버전·요청 ID·Run ID를 기록합니다. timeout은 unknown으로 남고 기존 Run을 확인합니다. 원격 State·승인·Apply/Destroy는 Terrakube가 소유합니다.
+
+## Operational observations
+
+Normalized snapshots and explicit UID-to-Canvas context links are stored separately from execution State. AWS/Kubernetes adapters collect allowlisted metadata; snapshot comparison suppresses deletion inference for incomplete kinds. Operational analysis consumes bounded evidence and never performs infrastructure changes. See [operations](RESOURCE-OPERATIONS.md).

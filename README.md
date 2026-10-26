@@ -2,7 +2,7 @@
 
 **인프라 리소스의 구조·상태·변경과 실행 근거를 연결하는 시각적 작업 공간.**
 
-Eolgae(얼개)는 연결한 Kubernetes 리소스를 조회하고 관계를 탐색하며, Canvas 설계와 실행 이력을 함께 확인하는 InfraOps 애플리케이션입니다. 단독 설치에서는 승인 기반 OpenTofu 실행을 사용하고, Terrakube에 연결한 Canvas는 실행·승인·State를 Terrakube에 위임합니다.
+Eolgae(얼개)는 연결한 Kubernetes·AWS 리소스를 조회하고 관계를 탐색하며, Canvas 설계와 실행 이력을 함께 확인하는 InfraOps 애플리케이션입니다. 단독 설치에서는 승인 기반 OpenTofu 실행을 사용하고, Terrakube에 연결한 Canvas는 실행·승인·State를 Terrakube에 위임합니다.
 
 ## 해결하려는 문제
 
@@ -16,7 +16,7 @@ Eolgae는 사용자가 그린 리소스와 관계를 코드로 변환하고, 검
 | 저장된 Plan의 승인·실행 | 검토한 변경과 실행할 변경의 연결 | binary Plan 보존, checksum 검증, 단일 사용 Apply/Destroy |
 | 비동기 실행과 이력 | 장시간 작업의 진행·실패 지점 파악 | worker queue, 단계별 timeline, Canvas별 실행 이력 |
 | 규칙 검사와 AI 피드백 | 구조적 오류와 설계상 고려사항 검토 | 주요 보안·가용성 baseline, 사용자 검토 기준 반영 |
-| 실제 상태와 설계 연결 | 배포 이후 변경과 관리 책임 추적 | Apply 결과의 binding 기반 구현; Kubernetes 수동 inventory 제공; AWS inventory·drift는 후속 범위 |
+| 실제 상태와 설계 연결 | 배포 이후 변경과 관리 책임 추적 | Kubernetes·AWS 4종 수동 inventory, 명시 실행 연관과 관측 비교 제공; IaC drift는 후속 범위 |
 
 위 효과는 설계 목표입니다. 작업 시간 절감률이나 운영 비용 개선률을 측정한 결과로 제시하지 않습니다.
 
@@ -61,7 +61,7 @@ flowchart LR
 - Target 등록, read-only RBAC manifest, 환경변수 기반 secret reference 해석
 - Canvas 데이터 기반 리소스 트리 미리보기
 
-Resources는 실제 Kubernetes API를 조회해 리소스 목록·상세·관계와 부분 실패를 표시합니다. cluster-side dry-run, 명령 콘솔, Pod exec, AWS discovery/import와 drift detection은 후속 작업입니다. [구현 상태와 한계](docs/STATUS.md)를 확인할 수 있습니다.
+Resources는 실제 Kubernetes API를 조회해 리소스 목록·상세·관계와 부분 실패를 표시합니다. cluster-side dry-run, 명령 콘솔, Pod exec, 추가 AWS 서비스/import와 drift detection은 후속 작업입니다. [구현 상태와 한계](docs/STATUS.md)를 확인할 수 있습니다.
 
 ## 구조
 
@@ -120,7 +120,7 @@ pnpm --dir apps/web build
 
 ## 다음 단계
 
-- 공통 Resources에 직접 실행/Terrakube 변경 이력 연결
+- 대규모 목록·자동 수집과 실제 운영 환경 인수 검증
 - AWS 리소스 발견 모델과 ownership 구분
 - 실제 상태의 freshness 및 drift 표시
 - Canvas page/router의 책임 분리와 UI 사용성 개선
@@ -128,3 +128,9 @@ pnpm --dir apps/web build
 AWS 변경은 계속 Plan·승인 경계를 유지합니다. 구현되지 않은 운영 기능은 현재 지원 기능과 구분해 확장합니다.
 
 외부 아이콘 출처는 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)에 정리했습니다.
+
+## 2026-10-26 운영 기능
+
+Resources에 명시적 Canvas 실행 이력 연결, 정규화 관측 저장·복원·변경 비교, Kubernetes Events/상태 신호, 근거 기반 규칙/선택적 AI 분석, AWS VPC/Subnet/SecurityGroup/EC2 조회를 추가했다.
+Alembic `0023_resource_observations`가 필요하다. 자동 수집·IaC drift·자동 조치는 포함하지 않는다.
+설정과 한도는 [운영 기능 가이드](docs/RESOURCE-OPERATIONS.md)를 따른다.

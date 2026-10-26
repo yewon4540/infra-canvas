@@ -88,3 +88,10 @@ Backend 수정 시 관련 Python 테스트와 `py_compile`을 실행합니다. F
   namespace 권한 제한과 종류별 RBAC 부분 실패 확인.
 - 브라우저에서 조회·검색·관계 이동·이전 관측·잘못된 profile 차단을 확인.
 - 실제 운영 Kubernetes와 AWS Apply/Destroy 검증을 뜻하지 않는다. Kubernetes 쓰기 기능은 제공하지 않는다.
+
+## 2026-10-26 verification
+
+- Python: 150 passed; one opt-in PostgreSQL test is skipped in the unit suite.
+- The PostgreSQL test passed separately, covering persistence, retention, ownership, execution links and analysis.
+- TypeScript and production Web build passed.
+- AWS SDK schema/permissions and LLM output/evidence validation use mocks; no live provider was configured.

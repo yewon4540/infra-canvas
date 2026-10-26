@@ -1,6 +1,6 @@
 # Kubernetes Resources 조회 설정
 
-2026-10-23. Resources는 Canvas·배포 이력·Terrakube 연결 없이 사용하는 수동 조회 화면이다.
+2026-10-26. Resources는 Canvas·배포 이력·Terrakube 연결 없이 사용하는 수동 조회 화면이다.
 Namespace, Deployment, ReplicaSet, Pod, Service, Ingress를 지원한다. API는 GET만 사용하며
 Secret, 환경변수, annotation, 원시 YAML과 로그를 응답이나 DB에 복제하지 않는다.
 
@@ -13,7 +13,7 @@ Secret, 환경변수, annotation, 원시 YAML과 로그를 응답이나 DB에 �
 ```yaml
 rules:
   - apiGroups: [""]
-    resources: [namespaces, pods, services]
+    resources: [namespaces, pods, services, events]
     verbs: [get, list]
   - apiGroups: [apps]
     resources: [deployments, replicasets]
@@ -78,17 +78,17 @@ Terrakube 설치에는 기존 `compose.terrakube.yml`도 유지한다. observati
 
 - 허용 profile 없음: 403. profile/token/CA 파일 오류: 503. namespace 형식 오류: 422.
 - 원격 401·403·404·410·429, timeout, TLS 실패를 종류별로 구분한다.
-- 실패한 종류의 이전 결과는 같은 화면·Target·범위에서만 보존하고 **이전 관측**으로 표시한다.
+- 실패한 종류의 이전 결과는 같은 Target·범위의 저장된 관측에서 보존하고 **이전 관측**으로 표시한다.
   성공한 종류는 갱신한다. Target·namespace를 바꾸면 기존 결과를 비운다.
 - 실패한 종류의 관계는 갱신 결과에서 제외한다.
 - 200개 단위 최대 5페이지/종류, 응답당 8 MiB, 전체 조회 예산 20초다. 진행 중 요청은
   최대 5초 timeout까지 더 걸릴 수 있다. 제한에 도달하면 불완전한 목록으로 표시한다.
   관계는 최대 5,000개이며 제한 시 일부 관계 표시 안내를 제공한다.
 - 불완전한 조회를 “리소스 없음”이나 삭제로 판정하지 않는다.
-- 자동 polling, 백그라운드 수집, drift, 명령 콘솔, Pod exec, 쓰기 API, AI 운영 분석은 후속이다.
+- 자동 polling, 백그라운드 수집, IaC drift, 명령 콘솔, Pod exec, 쓰기 API는 후속이다.
 
-새 DB migration은 필요 없다. Target에는 연결 metadata와 profile 이름만 저장한다.
-관측 결과는 요청 응답과 현재 화면 메모리에서만 사용한다.
+10/26부터 Alembic `0023_resource_observations`가 필요하다. 정규화 관측을 저장하며,
+실행 이력·변경 비교·운영 신호·선택적 AI 분석은 [운영 기능 가이드](RESOURCE-OPERATIONS.md)를 따른다.
 
 API: `GET /targets/{id}/resource-scope`, `GET /targets/{id}/resources?namespace=demo`.
 두 API 모두 Target 소유권과 관리자 profile 범위를 확인한다.

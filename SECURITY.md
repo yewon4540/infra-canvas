@@ -41,3 +41,5 @@ Terrakube credentials are mounted server-side files. Workspace/read-user and Pla
 are separate; Plan submission is disabled by default. A bound Canvas cannot fall back to direct
 execution. Unknown submission results are reconciled against the existing Run, not resubmitted.
 Remote approval, Apply/Destroy, State and locks remain owned by Terrakube.
+
+운영 관측은 정규화 metadata만 저장한다. 조회 때 현재 Target/profile 범위를 재검증한다. AWS 조회는 제한된 STS session policy를 사용하며 임시 자격증명을 저장하지 않는다. AI 분석은 기본 비활성이며 명시 요청 시 선택 metadata를 설정된 LLM 제공자에게 전송한다. 출력은 근거 ID를 검사하며 자동 실행하지 않는다.
